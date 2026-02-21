@@ -41,7 +41,12 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       overflow: hidden;
     }
-    .table { margin-bottom: 0; }
+    .table { margin-bottom: 0; table-layout: fixed; }
+    .table colgroup .col-provider { width: 15%; }
+    .table colgroup .col-model { width: 25%; }
+    .table colgroup .col-input { width: 22%; }
+    .table colgroup .col-output { width: 22%; }
+    .table colgroup .col-ratio { width: 16%; }
     .table thead th {
       background-color: #f8f9fa;
       border-bottom: 2px solid #dee2e6;
@@ -119,6 +124,13 @@
     <!-- Table -->
     <div class="table-wrapper mb-5">
       <table class="table" id="pricing-table">
+        <colgroup>
+          <col class="col-provider">
+          <col class="col-model">
+          <col class="col-input">
+          <col class="col-output">
+          <col class="col-ratio">
+        </colgroup>
         <thead>
           <tr>
             <th onclick="sortTable(0)">Provider <span class="sort-indicator">↕</span></th>
