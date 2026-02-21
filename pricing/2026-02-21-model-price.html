@@ -4,357 +4,336 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Model Pricing - 2026-02-21</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background-color: #f5f5f5;
-      padding: 20px;
-      line-height: 1.6;
-      color: #333;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 40px 0;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+    .container-custom { max-width: 1200px; }
+    .header-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .header-card h1 { font-weight: 700; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .stat-box {
       background: white;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 30px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    h1 {
-      margin-bottom: 10px;
-      color: #222;
+    .stat-box .stat-value { font-size: 32px; font-weight: bold; color: #667eea; margin: 10px 0; }
+    .stat-box .stat-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+    .table-wrapper {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
     }
-    .subtitle {
-      color: #666;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    .stats {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 30px;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border-radius: 6px;
-    }
-    .stat {
-      display: flex;
-      flex-direction: column;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .stat-value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #0066cc;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    thead {
-      background-color: #f0f0f0;
-    }
-    th {
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      border: 1px solid #ddd;
+    .table { margin-bottom: 0; }
+    .table thead th {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
       cursor: pointer;
       user-select: none;
-      white-space: nowrap;
+      font-weight: 600;
+      padding: 15px;
       transition: background-color 0.2s;
     }
-    th:hover {
-      background-color: #e0e0e0;
+    .table thead th:hover { background-color: #e9ecef; }
+    .sort-indicator { margin-left: 6px; opacity: 0.4; font-size: 0.85em; }
+    .sort-indicator.active { opacity: 1; color: #667eea; }
+    .table tbody td { padding: 15px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
+    .table tbody tr:hover { background-color: #f8f9fa; }
+    .provider-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+    .provider-anthropic { background-color: #fed7aa; color: #92400e; }
+    .provider-openai { background-color: #a7f3d0; color: #065f46; }
+    .model-name { font-weight: 500; color: #333; }
+    .price {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 14px; color: #667eea; font-weight: 500;
     }
-    td {
-      padding: 12px;
-      border: 1px solid #eee;
+    .ratio { font-weight: 600; color: #d97706; }
+    .footer-section {
+      margin-top: 40px; padding: 30px; background: white;
+      border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
-    tbody tr:nth-child(even) {
-      background-color: #fafafa;
-    }
-    tbody tr:hover {
-      background-color: #f0f8ff;
-    }
-    .number {
-      text-align: right;
-      font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 14px;
-    }
-    .provider-anthropic {
-      font-weight: 500;
-      color: #d97706;
-    }
-    .provider-openai {
-      font-weight: 500;
-      color: #059669;
-    }
-    .model-name {
-      font-weight: 500;
-    }
-    .ratio {
-      font-weight: 600;
-      color: #667eea;
-    }
-    .footer {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-      color: #666;
-      font-size: 13px;
-    }
-    .footer em {
-      display: block;
-      margin-bottom: 10px;
-    }
-    .reference-links {
-      margin-top: 15px;
-    }
+    .footer-section p { margin-bottom: 15px; color: #666; }
+    .reference-links { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px; }
     .reference-links a {
-      display: inline-block;
-      margin-right: 20px;
-      color: #0066cc;
-      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      color: #667eea; text-decoration: none; font-weight: 500; transition: color 0.2s;
     }
-    .reference-links a:hover {
-      text-decoration: underline;
-    }
+    .reference-links a:hover { color: #764ba2; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>💰 Combined Model Pricing Report</h1>
-    <div class="subtitle">Last Updated: 2026-02-21 07:25 PM (GMT+8)</div>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Anthropic Models</div>
-        <div class="stat-value">10</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">OpenAI Models</div>
-        <div class="stat-value">15</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Total Models</div>
-        <div class="stat-value">25</div>
+  <div class="container container-custom">
+    <!-- Header -->
+    <div class="card header-card mb-5">
+      <div class="card-body p-5">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1 class="mb-2"><i class="bi bi-currency-dollar"></i> Model Pricing Report</h1>
+            <p class="lead mb-0">OpenAI &amp; Anthropic Pricing Comparison</p>
+            <small class="text-white-50">Last updated: 2026-02-21 07:25 PM (GMT+8)</small>
+          </div>
+          <div class="col-md-4 text-end">
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">Anthropic</div>
+                <div class="stat-value">10</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">OpenAI</div>
+                <div class="stat-value">15</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">25</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <table id="pricing-table">
-      <thead>
-        <tr>
-          <th onclick="sortTable(0)" data-label="Provider">Provider <span class="sort-indicator">↕</span></th>
-          <th onclick="sortTable(1)" data-label="Model">Model <span class="sort-indicator">↕</span></th>
-          <th onclick="sortTable(2)" data-label="Input (per 1M tokens)">Input (per 1M tokens) <span class="sort-indicator">↕</span></th>
-          <th onclick="sortTable(3)" data-label="Output (per 1M tokens)">Output (per 1M tokens) <span class="sort-indicator">↕</span></th>
-          <th onclick="sortTable(4)" data-label="Ratio">Ratio <span class="sort-indicator">↕</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Haiku 3</td>
-          <td class="number">$0.25</td>
-          <td class="number">$1.25</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Haiku 3.5</td>
-          <td class="number">$0.80</td>
-          <td class="number">$4.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Haiku 4.5</td>
-          <td class="number">$1.00</td>
-          <td class="number">$5.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Sonnet 4</td>
-          <td class="number">$3.00</td>
-          <td class="number">$15.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Sonnet 4.5</td>
-          <td class="number">$3.00</td>
-          <td class="number">$15.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Sonnet 4.6</td>
-          <td class="number">$3.00</td>
-          <td class="number">$15.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Opus 4</td>
-          <td class="number">$15.00</td>
-          <td class="number">$75.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Opus 4.1</td>
-          <td class="number">$15.00</td>
-          <td class="number">$75.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Opus 4.5</td>
-          <td class="number">$5.00</td>
-          <td class="number">$25.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-anthropic">Anthropic</td>
-          <td class="model-name">Claude Opus 4.6</td>
-          <td class="number">$5.00</td>
-          <td class="number">$25.00</td>
-          <td class="number ratio">5.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-4-turbo</td>
-          <td class="number">$10.00</td>
-          <td class="number">$30.00</td>
-          <td class="number ratio">3.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-4.1</td>
-          <td class="number">$2.00</td>
-          <td class="number">$8.00</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-4.1-mini</td>
-          <td class="number">$0.40</td>
-          <td class="number">$1.60</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-4o</td>
-          <td class="number">$2.50</td>
-          <td class="number">$10.00</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-4o-mini</td>
-          <td class="number">$0.15</td>
-          <td class="number">$0.60</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5</td>
-          <td class="number">$1.25</td>
-          <td class="number">$10.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5-mini</td>
-          <td class="number">$0.25</td>
-          <td class="number">$2.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5-nano</td>
-          <td class="number">$0.05</td>
-          <td class="number">$0.40</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5-pro</td>
-          <td class="number">$15.00</td>
-          <td class="number">$120.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5.1</td>
-          <td class="number">$1.25</td>
-          <td class="number">$10.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5.2</td>
-          <td class="number">$1.75</td>
-          <td class="number">$14.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">GPT-5.2-pro</td>
-          <td class="number">$21.00</td>
-          <td class="number">$168.00</td>
-          <td class="number ratio">8.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">O1</td>
-          <td class="number">$15.00</td>
-          <td class="number">$60.00</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">O1-pro</td>
-          <td class="number">$150.00</td>
-          <td class="number">$600.00</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-        <tr>
-          <td class="provider-openai">OpenAI</td>
-          <td class="model-name">O3</td>
-          <td class="number">$2.00</td>
-          <td class="number">$8.00</td>
-          <td class="number ratio">4.0x</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- Info Alert -->
+    <div class="alert alert-info alert-dismissible fade show mb-5" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Pro Tip:</strong> Click any column header to sort the table ascending or descending.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-    <div class="footer">
-      <em>📊 Click any column header to sort the table</em>
-      <em>💡 Snapshot from 2026-02-21. For latest rates, visit:</em>
-      <div class="reference-links">
-        <a href="https://developers.openai.com/api/docs/pricing" target="_blank">OpenAI Pricing →</a>
-        <a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank">Anthropic Pricing →</a>
+    <!-- Table -->
+    <div class="table-wrapper mb-5">
+      <table class="table" id="pricing-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Provider <span class="sort-indicator">↕</span></th>
+            <th onclick="sortTable(1)">Model <span class="sort-indicator">↕</span></th>
+            <th onclick="sortTable(2)" class="text-end">Input (per 1M) <span class="sort-indicator">↕</span></th>
+            <th onclick="sortTable(3)" class="text-end">Output (per 1M) <span class="sort-indicator">↕</span></th>
+            <th onclick="sortTable(4)" class="text-end">Ratio <span class="sort-indicator">↕</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Haiku 3</td>
+            <td class="text-end price">$0.25</td>
+            <td class="text-end price">$1.25</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Haiku 3.5</td>
+            <td class="text-end price">$0.80</td>
+            <td class="text-end price">$4.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Haiku 4.5</td>
+            <td class="text-end price">$1.00</td>
+            <td class="text-end price">$5.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Sonnet 4</td>
+            <td class="text-end price">$3.00</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Sonnet 4.5</td>
+            <td class="text-end price">$3.00</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Sonnet 4.6</td>
+            <td class="text-end price">$3.00</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Opus 4</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end price">$75.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Opus 4.1</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end price">$75.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Opus 4.5</td>
+            <td class="text-end price">$5.00</td>
+            <td class="text-end price">$25.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-anthropic">Anthropic</span></td>
+            <td class="model-name">Claude Opus 4.6</td>
+            <td class="text-end price">$5.00</td>
+            <td class="text-end price">$25.00</td>
+            <td class="text-end ratio">5.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-4-turbo</td>
+            <td class="text-end price">$10.00</td>
+            <td class="text-end price">$30.00</td>
+            <td class="text-end ratio">3.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-4.1</td>
+            <td class="text-end price">$2.00</td>
+            <td class="text-end price">$8.00</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-4.1-mini</td>
+            <td class="text-end price">$0.40</td>
+            <td class="text-end price">$1.60</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-4o</td>
+            <td class="text-end price">$2.50</td>
+            <td class="text-end price">$10.00</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-4o-mini</td>
+            <td class="text-end price">$0.15</td>
+            <td class="text-end price">$0.60</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5</td>
+            <td class="text-end price">$1.25</td>
+            <td class="text-end price">$10.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5-mini</td>
+            <td class="text-end price">$0.25</td>
+            <td class="text-end price">$2.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5-nano</td>
+            <td class="text-end price">$0.05</td>
+            <td class="text-end price">$0.40</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5-pro</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end price">$120.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5.1</td>
+            <td class="text-end price">$1.25</td>
+            <td class="text-end price">$10.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5.2</td>
+            <td class="text-end price">$1.75</td>
+            <td class="text-end price">$14.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">GPT-5.2-pro</td>
+            <td class="text-end price">$21.00</td>
+            <td class="text-end price">$168.00</td>
+            <td class="text-end ratio">8.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">O1</td>
+            <td class="text-end price">$15.00</td>
+            <td class="text-end price">$60.00</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">O1-pro</td>
+            <td class="text-end price">$150.00</td>
+            <td class="text-end price">$600.00</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+          <tr>
+            <td><span class="provider-badge provider-openai">OpenAI</span></td>
+            <td class="model-name">O3</td>
+            <td class="text-end price">$2.00</td>
+            <td class="text-end price">$8.00</td>
+            <td class="text-end ratio">4.0x</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-section">
+      <div class="row">
+        <div class="col-md-8">
+          <h5>About This Data</h5>
+          <p><strong>Snapshot Date:</strong> 2026-02-21 07:25 PM (GMT+8)</p>
+          <p><strong>Note:</strong> Prices in USD per million tokens. Output cost ratios show how much more output costs relative to input. These are base rates; volume discounts may apply.</p>
+          <p><small class="text-muted">For enterprise pricing, contact the providers directly.</small></p>
+        </div>
+        <div class="col-md-4">
+          <h5>Official Sources</h5>
+          <div class="reference-links">
+            <a href="https://developers.openai.com/api/docs/pricing" target="_blank">
+              <i class="bi bi-link-45deg"></i> OpenAI Pricing
+            </a>
+            <a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank">
+              <i class="bi bi-link-45deg"></i> Anthropic Pricing
+            </a>
+          </div>
+        </div>
       </div>
-      <em style="margin-top: 15px; display: block;">Note: Prices in USD per million tokens. Output cost ratios show how much more output costs relative to input.</em>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Track which column is sorted and in which direction
     var currentSortCol = -1;
     var currentAscending = true;
 
@@ -364,7 +343,6 @@
       var isNumber = col >= 2;
       var headers = table.querySelectorAll('th');
 
-      // Determine sort direction
       if (currentSortCol === col) {
         currentAscending = !currentAscending;
       } else {
@@ -372,11 +350,9 @@
         currentAscending = true;
       }
 
-      // Sort rows
       rows.sort(function(a, b) {
         var aVal = a.children[col].textContent.trim();
         var bVal = b.children[col].textContent.trim();
-
         if (isNumber) {
           aVal = parseFloat(aVal.replace('$', '').replace('x', ''));
           bVal = parseFloat(bVal.replace('$', '').replace('x', ''));
@@ -387,18 +363,18 @@
         }
       });
 
-      // Re-append sorted rows
       var tbody = table.querySelector('tbody');
       rows.forEach(function(row) { tbody.appendChild(row); });
 
-      // Update all arrow indicators
       headers.forEach(function(th, i) {
         var indicator = th.querySelector('.sort-indicator');
         if (!indicator) return;
         if (i === col) {
           indicator.textContent = currentAscending ? '↑' : '↓';
+          indicator.classList.add('active');
         } else {
           indicator.textContent = '↕';
+          indicator.classList.remove('active');
         }
       });
     }
