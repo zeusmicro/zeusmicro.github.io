@@ -156,11 +156,11 @@
     <table id="pricing-table">
       <thead>
         <tr>
-          <th onclick="sortTable(0)">Provider ↑↓</th>
-          <th onclick="sortTable(1)">Model ↑↓</th>
-          <th onclick="sortTable(2)">Input<br>(per 1M tokens) ↑↓</th>
-          <th onclick="sortTable(3)">Output<br>(per 1M tokens) ↑↓</th>
-          <th onclick="sortTable(4)">Ratio ↑↓</th>
+          <th onclick="sortTable(0)" data-label="Provider">Provider <span class="sort-indicator">↕</span></th>
+          <th onclick="sortTable(1)" data-label="Model">Model <span class="sort-indicator">↕</span></th>
+          <th onclick="sortTable(2)" data-label="Input (per 1M tokens)">Input (per 1M tokens) <span class="sort-indicator">↕</span></th>
+          <th onclick="sortTable(3)" data-label="Output (per 1M tokens)">Output (per 1M tokens) <span class="sort-indicator">↕</span></th>
+          <th onclick="sortTable(4)" data-label="Ratio">Ratio <span class="sort-indicator">↕</span></th>
         </tr>
       </thead>
       <tbody>
@@ -354,44 +354,53 @@
   </div>
 
   <script>
-    function sortTable(col) {
-      const table = document.getElementById('pricing-table');
-      const rows = Array.from(table.querySelectorAll('tbody tr'));
-      const isNumber = col >= 2;
-      let ascending = true;
+    // Track which column is sorted and in which direction
+    var currentSortCol = -1;
+    var currentAscending = true;
 
-      // Check current sort direction
-      const header = table.querySelectorAll('th')[col];
-      if (header.textContent.includes('↑')) {
-        ascending = false;
-        header.textContent = header.textContent.replace('↑', '↓');
+    function sortTable(col) {
+      var table = document.getElementById('pricing-table');
+      var rows = Array.from(table.querySelectorAll('tbody tr'));
+      var isNumber = col >= 2;
+      var headers = table.querySelectorAll('th');
+
+      // Determine sort direction
+      if (currentSortCol === col) {
+        currentAscending = !currentAscending;
       } else {
-        ascending = true;
-        header.textContent = header.textContent.replace('↓', '↑');
+        currentSortCol = col;
+        currentAscending = true;
       }
 
-      // Reset other headers
-      table.querySelectorAll('th').forEach((th, i) => {
-        if (i !== col) {
-          th.textContent = th.textContent.replace(/[↑↓]/, '↑↓');
-        }
-      });
-
-      rows.sort((a, b) => {
-        let aVal = a.children[col].textContent.trim();
-        let bVal = b.children[col].textContent.trim();
+      // Sort rows
+      rows.sort(function(a, b) {
+        var aVal = a.children[col].textContent.trim();
+        var bVal = b.children[col].textContent.trim();
 
         if (isNumber) {
           aVal = parseFloat(aVal.replace('$', '').replace('x', ''));
           bVal = parseFloat(bVal.replace('$', '').replace('x', ''));
-          return ascending ? aVal - bVal : bVal - aVal;
+          return currentAscending ? aVal - bVal : bVal - aVal;
         } else {
-          const result = aVal.localeCompare(bVal);
-          return ascending ? result : -result;
+          var result = aVal.localeCompare(bVal);
+          return currentAscending ? result : -result;
         }
       });
 
-      rows.forEach(row => table.querySelector('tbody').appendChild(row));
+      // Re-append sorted rows
+      var tbody = table.querySelector('tbody');
+      rows.forEach(function(row) { tbody.appendChild(row); });
+
+      // Update all arrow indicators
+      headers.forEach(function(th, i) {
+        var indicator = th.querySelector('.sort-indicator');
+        if (!indicator) return;
+        if (i === col) {
+          indicator.textContent = currentAscending ? '↑' : '↓';
+        } else {
+          indicator.textContent = '↕';
+        }
+      });
     }
   </script>
 </body>
